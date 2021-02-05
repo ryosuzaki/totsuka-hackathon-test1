@@ -11,7 +11,7 @@ class SheltersController extends Controller
     //
     public function get_info($code)
     {
-        return view('shelters.get_info')->with(['shelter_info' => Shelter::where('code',$code) ]);
+        return view('shelters.get_info')->with(['shelter_info' => Shelter::where('code',$code)->first() ]);
     }
 
 
