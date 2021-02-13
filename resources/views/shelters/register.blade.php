@@ -3,12 +3,8 @@
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
-    <form action="/register-shelter" method="post">
+    <form action="register-shelter" method="post">
     {{ csrf_field() }}
-    <div>
-        <label>避難所コード</label><br>
-        <input type="text" name="code"/>
-    </div>
     <div>
         <label>避難所名</label><br>
         <input type="text" name="name">

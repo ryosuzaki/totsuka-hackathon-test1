@@ -15,13 +15,11 @@ class CreateSheltersTable extends Migration
     public function up()
     {
         Schema::create('shelters', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->timestamps();
-            $table->string('code', 50)->unique();
-            $table->string('name', 100);
-            #$table->geometry('location');
-            $table->integer('degree_of_congestion')->nullable($value = true);
+            $table->increments('id');
+            $table->string('name')->index();
+            $table->tinyInteger('degree_of_congestion')->nullable($value = true);
             $table->text('info')->nullable($value = true);
+            $table->timestamps();
         });
     }
 
