@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class SheltersController extends Controller
 {
     public function search(Request $request){
-        return redirect()->route('shelter.home', ['id' => $request->id]);
+        return redirect()->route('shelter.info', ['id' => $request->id]);
     }
     //編集
     public function edit(Request $request,$id){

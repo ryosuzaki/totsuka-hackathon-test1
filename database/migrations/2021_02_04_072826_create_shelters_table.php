@@ -18,8 +18,9 @@ class CreateSheltersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('updated_by');
             $table->string('name')->index();
-            $table->tinyInteger('degree_of_congestion')->nullable($value = true);
             $table->text('info')->nullable($value = true);
+            $table->tinyInteger('degree_of_congestion')->nullable($value = true);
+            $table->text('detail_of_congestion')->nullable($value = true);
             $table->string('staff_password');
             $table->string('user_password');
             $table->timestamps();

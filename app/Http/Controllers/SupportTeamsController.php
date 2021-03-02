@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class SupportTeamsController extends Controller
 {
     public function search(Request $request){
-        return redirect()->route('support_team.home', ['id' => $request->id]);
+        return redirect()->route('support_team.info', ['id' => $request->id]);
     }
     //編集
     public function edit(Request $request,$id){

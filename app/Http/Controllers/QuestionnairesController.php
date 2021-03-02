@@ -33,7 +33,7 @@ class QuestionnairesController extends Controller
         $db->save();
         return redirect()->route('questionnaire.home');
     }
-
+/*
     public function answers($type,$id){
         if($type=="safety"){
             return view('questionnaire.safety.answers')->with(['answers'=>User::find($id)->safety_questionnaires()->get()]);
@@ -42,13 +42,21 @@ class QuestionnairesController extends Controller
             return view('questionnaire.health.answers')->with(['answers'=>User::find($id)->health_questionnaires()->get()]);
         }
     }
-
+*/
+    public function answers($id){
+        return view('questionnaire.answers')->with([
+            'safety_answers'=>User::find($id)->safety_questionnaires()->orderBy('created_at','desc')->get(),
+            'health_answers'=>User::find($id)->health_questionnaires()->orderBy('created_at','desc')->get(),
+            ]);   
+    }
     public function answer($type,$user_id,$answer_id){
         if($type=="safety"){
-            return view('questionnaire.safety.answer')->with(['answer'=>SafetyQuestionnaire::find($answer_id)->first(),'user'=>User::find($user_id)->first()]);
+            $q=new SafetyQuestionnaire();
+            return view('questionnaire.safety.answer')->with(['answer'=>SafetyQuestionnaire::find($answer_id),'user'=>User::find($user_id),'questions'=>$q->questions]);
         }
         if($type=="health"){
-            return view('questionnaire.health.answer')->with(['answer'=>HealthQuestionnaire::find($answer_id)->first(),'user'=>User::find($user_id)->first()]);
+            $q=new HealthQuestionnaire();
+            return view('questionnaire.health.answer')->with(['answer'=>HealthQuestionnaire::find($answer_id),'user'=>User::find($user_id),'questions'=>$q->questions]);
         }
     }
 }

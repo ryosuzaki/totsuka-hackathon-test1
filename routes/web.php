@@ -13,20 +13,20 @@
 use App\Shelter;
 use App\SupportTeam;
 use App\User;
+use App\SafetyQuestionnaire;
+use App\HealthQuestionnaire;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 });
 
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-//
-Route::get('shelter/search',function () {
-    return view('shelter.search');
-})->name('shelter.search');
+
 //避難所 ホーム
 Route::get('shelter/{id}/home',function ($id) {
     return view('shelter.home')->with(['shelter' => Shelter::find($id)]);
@@ -35,6 +35,7 @@ Route::get('shelter/{id}/home',function ($id) {
 Route::get('shelter/{id}/info', function($id){
     return view('shelter.info')->with(['shelter' => Shelter::find($id)]);
 })->name('shelter.info');
+//検索
 Route::get('shelter/search',function(){return view('shelter.search');})->name('shelter.search.get');
 Route::post('shelter/search','SheltersController@search')->name('shelter.search.post');
 
@@ -47,8 +48,12 @@ Route::get('support-team/{id}/home',function ($id) {
 Route::get('support-team/{id}/info', function($id){
     return view('support_team.info')->with(['support_team' => SupportTeam::find($id)]);
 })->name('support_team.info');
+//検索
 Route::get('support_team/search',function(){return view('support_team.search');})->name('support_team.search.get');
 Route::post('support-team/search', 'SupportTeamsController@search')->name('support_team.search.post');
+
+//ライセンス
+Route::get('license',function(){return view('license');})->name('license');
 
 // ユーザ登録済みのみ
 Route::group(['middleware' => 'auth'], function () {
@@ -56,15 +61,23 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('user/home',function () {
         return view('user.home');
     })->name('user.home');
-    //ユーザー情報
-    Route::get('user/{id}/info',function($id){
-        return view('user.info')->with(['user' => User::find($id)]);
+    //ユーザー情報,編集,公開設定 本人のみ
+    Route::get('user/info',function(){
+        return view('user.info')->with(['user' => User::find(Auth::id())]);
     })->name('user.info');
-    //ユーザー編集
-    Route::get('user/edit',function () {
-        return view('user.edit')->with(['user' => User::find(Auth::id())]);
-    })->name('user.edit.get');
-    Route::post('user/edit','UsersController@edit')->name('user.edit.post');
+    //ユーザー情報 公開用　userがgroupに所属している、所属していない場合は$group_idが0の時閲覧可能
+    Route::get('user/{user_id}/info-others/{group_id}',function($user_id,$group_id){
+        $user=User::find($user_id);
+        $shelter=$user->user_shelters()->get();
+        $support=$user->user_supports()->get();
+        if($shelter->contains('id',$group_id)||$support->contains('id',$group_id)){
+            return view('user.info_others')->with(['user' => User::find($user_id)]);
+        }elseif ($shelter->isEmpty()&&$support->isEmpty()&&$group_id==0){
+            return view('user.info_others')->with(['user' => User::find($user_id)]);
+        }else{
+            abort(404);
+        }
+    })->name('user.info_others');
     //ユーザー所属一覧
     Route::get('user/belong','UsersController@belong')->name('user.belong');
 
@@ -127,9 +140,17 @@ Route::group(['middleware' => 'auth'], function () {
     })->name('questionnaire.home');
     //アンケート
     Route::get('questionnaire/{type}/form', function ($type) {
-        return view('questionnaire.'.$type.'.form');
+        if ($type=="safety"){
+            $q=new SafetyQuestionnaire();
+            return view('questionnaire.'.$type.'.form')->with(['questions'=>$q->questions]);
+        }
+        if ($type=="health"){
+            $q=new HealthQuestionnaire();
+            return view('questionnaire.'.$type.'.form')->with(['questions'=>$q->questions]);
+        }
     })->name('questionnaire.form.get');
     Route::post('questionnaire/{type}/form', 'QuestionnairesController@form')->name('questionnaire.form.post');
-    Route::get('questionnaire/{type}/{id}/answers','QuestionnairesController@answers')->name('questionnaire.answers');
+    //Route::get('questionnaire/{type}/{id}/answers','QuestionnairesController@answers')->name('questionnaire.answers');
+    Route::get('questionnaire/{id}/answers','QuestionnairesController@answers')->name('questionnaire.answers');
     Route::get('questionnaire/{type}/{user_id}/answer/{answer_id}','QuestionnairesController@answer')->name('questionnaire.answer');
 });

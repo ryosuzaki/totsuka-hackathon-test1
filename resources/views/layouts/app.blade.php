@@ -7,7 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>戸塚ハッカソン</title>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -18,13 +18,38 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <!-- tablesorter -->
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
+    <style type="text/css">
+        .tablesorter-headerUnSorted {
+            height:80%;
+            background-image: url("{{asset('img/sort-icon.png')}}");
+            background-repeat: no-repeat;
+            background-size:auto 60%;
+            background-position: center right;
+        }
+        .tablesorter-headerAsc {
+            background-image: url("{{asset('img/sort-asc-icon.png')}}");
+            background-repeat: no-repeat;
+            background-size:auto 60%;
+            background-position: center right;
+        }
+        .tablesorter-headerDesc {
+            background-image: url("{{asset('img/sort-desc-icon.png')}}");
+            background-repeat: no-repeat;
+            background-size:auto 60%;
+            background-position: center right;
+        }
+    </style>
+
 </head>
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
+                    戸塚ハッカソン
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -33,7 +58,67 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-offset="10,20">
+                                ユーザー
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('user.info') }}">
+                                        ユーザー情報
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('user.belong') }}">
+                                        所属一覧
+                                    </a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                避難所
+                            </a>
 
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <form action="{{route('shelter.search.post')}}" method="post">
+                                {{ csrf_field() }}
+                                    <input type="tel" name="id" placeholder="避難所ID">
+                                    <input type="submit" value="避難所ページへ">
+                                </form>
+                                <a class="dropdown-item" href="{{ route('shelter.register.get') }}">
+                                    避難所登録
+                                </a>
+                            </div>
+                            
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                サポートチーム
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <form action="{{route('support_team.search.post')}}" method="post">
+                                {{ csrf_field() }}
+                                    <input type="tel" name="id" placeholder="サポートチームID">
+                                    <input type="submit" value="サポートチームページへ">
+                                </form>
+                                <a class="dropdown-item" href="{{ route('support_team.register.get') }}">
+                                    サポートチーム登録
+                                </a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                アンケート
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('questionnaire.form.get',['type'=>'health']) }}">
+                                        健康管理
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('questionnaire.form.get',['type'=>'safety']) }}">
+                                        安否確認
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('questionnaire.answers',['id'=>Auth::user()->id])}}">
+                                        これまでの回答
+                                    </a>
+                            </div>
+                        </li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -41,11 +126,11 @@
                         <!-- Authentication Links -->
                         @guest
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">{{ __('ログイン') }}</a>
+                                <a class="nav-link" href="{{ route('login') }}">ログイン</a>
                             </li>
                             @if (Route::has('register'))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('ユーザー登録') }}</a>
+                                    <a class="nav-link" href="{{ route('register') }}">ユーザー登録</a>
                                 </li>
                             @endif
                         @else
@@ -58,7 +143,7 @@
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                        {{ __('ログアウト') }}
+                                        ログアウト
                                     </a>
 
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -76,5 +161,8 @@
             @yield('content')
         </main>
     </div>
+<!--<footer class="mx-auto">
+<a href="{{route('license')}}" class="text-center">ライセンス</a>
+</footer>-->
 </body>
 </html>

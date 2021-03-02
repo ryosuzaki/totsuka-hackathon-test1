@@ -10,7 +10,6 @@ class UsersController extends Controller
 {
     //
     public function belong(){
-        info(User::find(Auth::id())->staff_shelters()->get());
         return view('user.belong')->
         with([
             'staff_shelters'=>User::find(Auth::id())->staff_shelters()->get(),
